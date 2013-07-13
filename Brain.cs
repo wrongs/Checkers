@@ -74,6 +74,7 @@ namespace Ročníkový_projekt_v_1._3
             return alfa;
         }
 
+        //generování nejlepšího tahu
         public Move GenerateBestMove(Player player)
         {
             List<Move> moves = Rules.GenerateMoves(player);
