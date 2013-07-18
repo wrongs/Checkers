@@ -54,7 +54,8 @@ public struct Shift : IEquatable<Shift>
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class Move : IEquatable<Move>
+    [Serializable]
+    public class Move : IEquatable<Move>
     {
         private List<Shift> Shifts; //{ get; set; }
         private int Before, After;

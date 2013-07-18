@@ -89,6 +89,11 @@ namespace Ročníkový_projekt_v_1._3
                             else WarningMessage();
                         }
                         break;
+                    case "SAVE":
+                        {
+                            GameManager.SaveGame();    
+                        }
+                        break;
                     default:
                         Regex regex3 = new Regex("[A-J][0-9] [A-J][0-9]");
                         if ((regex3.IsMatch(command.ToUpper())) && (0 == (parsed.Length % 2))) CommandPlayerMove(parsed, ref konec);

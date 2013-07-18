@@ -5,12 +5,15 @@ using System.Text;
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class Brain
+    public class Brain
     {
         Rules Rules;
         Chessboard Board;
+        //----------konstanta _MAX je pro označní konce hry
         private int _MAX = 3000;
+        //----------konstanta _Mnoho slouží pro rozlišení tahů ukončujících hru a bežných tahů
         private int _Mnoho = 2500;
+        //----------directions - pole obsahující všechny možné směry 
         private int[,] directions = { { -1, -1 }, { -2, 0 }, { -1, 1 }, { 0, -2 }, { 0, 2 }, { 1, -1 }, { 2, 0 }, { 1, 1 } };
 
         public Brain(Rules rules, Chessboard board)
@@ -19,6 +22,7 @@ namespace Ročníkový_projekt_v_1._3
             Board = board;
         }
 
+        //pomocné funkce při práci v rekurzi
         private int Farther (int value)
         {
             if (value > _Mnoho)
@@ -32,6 +36,7 @@ namespace Ročníkový_projekt_v_1._3
             return value;
         }
 
+        //pomocné funkce při práci v rekurzi
         private int Closer (int value)
         {
             if (value > _Mnoho)
@@ -45,6 +50,7 @@ namespace Ročníkový_projekt_v_1._3
             return value;
         }
 
+        //minimax s alfabeta ořezáváním pro větří rachlost algoritmu
         private int Alfabeta(Player player, int depth, int alfa, int beta)
         {
             if (Rules.IsLoose(player)) return -_MAX;
@@ -101,6 +107,7 @@ namespace Ročníkový_projekt_v_1._3
             return BestMove;
         }
 
+        //ohodnocovací funkce
         private int EvaluationBoard(Chessboard board, Player player)
         {
             int sum = 0;
@@ -144,6 +151,7 @@ namespace Ročníkový_projekt_v_1._3
             return -sum;
         }
 
+        //pomocné funkce pro ukládání a načítání proměnných použitých v rekurzi
         private void SaveVariables(ref int variable1, ref int variable2)
         {
             variable1 = Rules.GetNotJumpMoves();

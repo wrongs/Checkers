@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class GameManager
+    public class GameManager
     {
         private Chessboard Board;
         private Rules Rules;
         private Brain Brain;
 
-        //Trida ktera slouzi jako rozhrani meyi logikou a UI
+        //Trida ktera slouzi jako rozhrani mezi logikou a UI
         public GameManager(Chessboard board, Rules rules, Brain brain)
         {
             this.Board = board;
@@ -44,8 +46,8 @@ namespace Ročníkový_projekt_v_1._3
         private bool GeneratePlayerMove(string[] parsed, Move move)
         {  
 
-            Char[] from = parsed[0].ToUpper().ToCharArray();
-            Char[] to = parsed[1].ToUpper().ToCharArray();
+            Char[] from = parsed[0].ToUpper().ToCharArray();// možná oddělat
+            Char[] to = parsed[1].ToUpper().ToCharArray();///////////////////
             int x1, y1, x2, y2, originalValue;
             List<int[]> available = new List<int[]>();
 
@@ -88,7 +90,8 @@ namespace Ročníkový_projekt_v_1._3
                 if (jumpedValue == 0) move.AddShift(x1, y1, x2, y2);
                 else move.AddShift(x1, y1, x3, y3, x2, y2, jumpedValue);
 
-                if ((i + 1) > parsed.Length)
+                //toto nechápu podle mě oddělat i s celým set after
+                if ((i + 3) > parsed.Length)
                 {
                     move.SetAfter(Board.GetValueOnPosition(x2, y2));
                     foreach (int[] array in available)
@@ -112,6 +115,20 @@ namespace Ročníkový_projekt_v_1._3
             if (result == 1) return 3;
             if (result == 2) return 4;
             return 0;
+        }
+
+        public bool SaveGame()
+        {
+
+            // objektu XMLSerializer řekneme, jak bude vypadat kořen
+            XmlSerializer xmlSerial = new XmlSerializer(typeof(Chessboard));
+            // řekneme, do jakého souboru bude zapisovat
+            TextWriter xml = new StreamWriter("save.xml");
+            // zapíšeme do souboru            
+            xmlSerial.Serialize(xml, Board);
+            // zavřeme
+            xml.Close();
+            return true;
         }
 
         //pomocna metoda pro prevod souradnic

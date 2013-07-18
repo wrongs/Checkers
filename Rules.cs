@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class Rules
+    public class Rules
     {
         private const int _Up = -1;
         private const int _Down = 1;

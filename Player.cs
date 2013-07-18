@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class Player : IEquatable<Player>
+    public class Player : IEquatable<Player>
     {
         string Name;
         int Type;

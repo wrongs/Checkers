@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace Ročníkový_projekt_v_1._3
 {
-    class Chessboard
+    [Serializable]
+    public class Chessboard
     {
         private const int _WhitePawn = 25;
         private const int _BlackPawn = -25;
@@ -16,9 +18,15 @@ namespace Ročníkový_projekt_v_1._3
 
         private int[,] Board = new int[10, 10];
 
+        private Stack<Move> UndoStack;
+        private Stack<Move> RedoStack;
+
+
         public Chessboard()
         {
             FillBoard();
+            UndoStack = new Stack<Move>();
+            RedoStack = new Stack<Move>();
         }
         
         public int[,] GetBoard()
@@ -43,7 +51,7 @@ namespace Ročníkový_projekt_v_1._3
                 }
         }
           
-       // Funkce provádí zmenu obdahu hraci desky podle daného
+       // Funkce provádí zmenu obsahu hraci desky podle daného tahu
         public void DoMove(Move t)
         {
             foreach (Shift s in t.GetShifts())
@@ -51,6 +59,8 @@ namespace Ročníkový_projekt_v_1._3
                 Board[s.X1, s.Y1] = 0; 
                 Board[s.X3, s.Y3] = t.GetBefore();
             }
+            UndoStack.Push(t);
+            RedoStack.Clear();
         }
 
         // provadi odstraneni kamenu z desky
@@ -73,6 +83,21 @@ namespace Ročníkový_projekt_v_1._3
                 if (s.Jumped != 0) Board[s.X2, s.Y2] = s.Jumped;
                 Board[s.X3, s.Y3] = t.GetAfter();
             }
+        }
+
+        // metoda pro krok zpet ve hre
+        public void Undo()
+        {
+            Move move = UndoStack.Pop();
+            DoInvMove(move);
+            RedoStack.Push(move);
+        }
+
+        public void Redo()
+        {
+            Move move = RedoStack.Pop();
+            DoMove(move);
+            UndoStack.Push(move);
         }
 
         // metoda vrací hodnotu daného policka desky
