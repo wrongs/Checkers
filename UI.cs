@@ -17,26 +17,46 @@ namespace Ročníkový_projekt_v_1._3
         private const int _BottomBorder = 9;
         private const int _LefBorder = 0;
         private const int _RightBorder = 9;
-        private static Brain Brain;
-        private static GameManager GameManager;
-        private static Chessboard Board;
-        private static Rules Rules;
-        private static Player P1;
-        private static Player P2;
+        // private static Brain Brain;
+        private static GameManager Manager;
+        // private static Chessboard Board;
+        //  private static Rules Rules;
 
-        public UI()
+        public UI(GameManager gameManager)
         {
+            Manager = gameManager;
             Start();
-            Play();
         }
 
-        private void Play()
+        //pomocna metoda pro zjisteni zacinajiciho hrace
+        private void Start()
+        {
+            Console.WriteLine("Vita vas hra Friska dama zadejte start pro zacatek hry!");
+            Console.WriteLine("Pokud chcete znat vsechny prikazy pro hrani zadejte help po zobrazeni hraci desky!");
+            Console.WriteLine("");
+            Console.Write(">> ");
+
+            bool konec = false;
+            string command;
+            do
+            {
+                command = Console.ReadLine().ToUpper();
+                if (command.Equals("START"))
+                {
+                    konec = true;
+                }
+                else Console.WriteLine("Zadejte start pro zacatek");
+            } while (konec != true);
+        }
+
+        //obsahuje smycku pro zpracovani prikazu pokud se jedna o hrace jinak po dvou vterinach provede tah vygenerovany pocitacem
+        public void Play()
         {
             bool konec = false;
             
             do
             {
-            if (Rules.OnMovePlayer().GetPlayerType() == 0)
+            if (Manager.Rules.OnMovePlayer().GetPlayerType() == 0)
                 {
                     System.Threading.Thread.Sleep(2000);
                     CommandComputerMove(ref konec);
@@ -84,14 +104,14 @@ namespace Ročníkový_projekt_v_1._3
                         {
                             Regex regex1 = new Regex("[A-J][0-9]");
                             if ((regex1.IsMatch(parsed[1].ToUpper())) && (2 == parsed.Length) && (parsed[1].Length == 2)) ShowMove(parsed);
-                            else if ((parsed.Length == 2) && (parsed[1].ToUpper().Equals(P1.GetName().ToUpper()))) ShowAllMoves(P1);
-                            else if ((parsed.Length == 2) && (parsed[1].ToUpper().Equals(P2.GetName().ToUpper()))) ShowAllMoves(P2);
+                            else if ((parsed.Length == 2) && (parsed[1].ToUpper().Equals(Manager.P1.GetName().ToUpper()))) ShowAllMoves(Manager.P1);
+                            else if ((parsed.Length == 2) && (parsed[1].ToUpper().Equals(Manager.P2.GetName().ToUpper()))) ShowAllMoves(Manager.P2);
                             else WarningMessage();
                         }
                         break;
                     case "SAVE":
                         {
-                            GameManager.SaveGame();    
+                            //GameManager.SaveGame();    
                         }
                         break;
                     default:
@@ -110,20 +130,20 @@ namespace Ročníkový_projekt_v_1._3
         //metoda obsluhucici prikaz pro tah
         private void CommandPlayerMove(string[] parsed,ref bool konec)
         {
-            int result = GameManager.DoPlayerMove(parsed);
+            int result = Manager.DoPlayerMove(parsed);
             PrintResult(result, ref konec);
         }
 
         //metoda ktera provadi tah pocitace
         public void CommandComputerMove(ref bool konec)
         {
-            int result = GameManager.DoComputerMove();
+            int result = Manager.DoComputerMove();
             PrintResult(result, ref konec);
         }
 
         public void HelpCommand()
         {
-            ShowChessboard(Board);
+            ShowChessboard(Manager.Board);
             Console.WriteLine("");
             Console.WriteLine("Prikazy pro hru Friska dama:");
             Console.WriteLine("Konec - ukoncite okamzite hru");
@@ -137,8 +157,8 @@ namespace Ročníkový_projekt_v_1._3
 
         public void CommandBestMove()
         {
-            Move tah = Brain.GenerateBestMove(Rules.OnMovePlayer());
-            ShowChessboard(Board);
+            Move tah = Manager.Brain.GenerateBestMove(Manager.Rules.OnMovePlayer());
+            ShowChessboard(Manager.Board);
             Console.WriteLine("");
             Console.WriteLine(tah.ToString());
             Console.WriteLine("");
@@ -147,12 +167,12 @@ namespace Ročníkový_projekt_v_1._3
 
         private void PrintResult(int result, ref bool konec)
         {
-            ShowChessboard(Board);
+            ShowChessboard(Manager.Board);
             if (result == 1) Console.WriteLine("Tah je proti pravidlum");
             else if (result == 2) Console.WriteLine("Hrac neni na tahu");
             else if (result == 3)
             {
-                Console.WriteLine("Konec hry vyhrava hrac {0}", Rules.WhoNotOnMove().GetName());
+                Console.WriteLine("Konec hry vyhrava hrac {0}", Manager.Rules.WhoNotOnMove().GetName());
                 konec = true;
                 return;
             }
@@ -167,14 +187,14 @@ namespace Ročníkový_projekt_v_1._3
         //metoda obsluhujici prikaz show pro vypis moznych tahu pro danou pozici
         private void ShowMove(string[] parsed)
         {
-            ShowChessboard(Board);
+            ShowChessboard(Manager.Board);
             int x,y;
             Char[] indexes = parsed[1].ToUpper().ToCharArray();
             {
                 y = indexes[0];
                 x = indexes[1];
-                GameManager.PrevodNaPole(ref x, ref y);
-                foreach (Move m in Rules.GenerateMovesForPosition(x, y))
+                Manager.PrevodNaPole(ref x, ref y);
+                foreach (Move m in Manager.Rules.GenerateMovesForPosition(x, y))
                 {
                     Console.WriteLine(m.ToString());
                 }
@@ -186,11 +206,11 @@ namespace Ročníkový_projekt_v_1._3
 
         private void ShowAllMoves(Player player)
         {
-            ShowChessboard(Board);
+            ShowChessboard(Manager.Board);
             List<Move> allMoves;
 
-            if (P1.Equals(player)) allMoves = Rules.GenerateMoves(P1);
-            else allMoves = Rules.GenerateMoves(P2);
+            if (Manager.P1.Equals(player)) allMoves = Manager.Rules.GenerateMoves(Manager.P1);
+            else allMoves = Manager.Rules.GenerateMoves(Manager.P2);
             foreach (Move m in allMoves)
             {
                 Console.WriteLine(m.ToString());
@@ -200,6 +220,7 @@ namespace Ročníkový_projekt_v_1._3
             ShowInfo();
         }
 
+        /*
         //metoda starajici se o start hry
         public void NewGame()
         {
@@ -221,32 +242,12 @@ namespace Ročníkový_projekt_v_1._3
             ShowChessboard(Board);
             ShowInfo();
         }
+         * */
 
-        //pomocna metoda pro zjisteni zacinajiciho hrace
-        private void Start()
-        {
-            Console.WriteLine("Vita vas hra Friska dama zadejte start pro zacatek hry!");
-            Console.WriteLine("Pokud chcete znat vsechny prikazy pro hrani zadejte help po zobrazeni hraci desky!");
-            Console.WriteLine("");
-            Console.Write(">> ");
-
-            bool konec = false;
-            string command;
-            do
-            {
-                command = Console.ReadLine().ToUpper();
-                if (command.Equals("START"))
-                {
-                    NewGame();
-                    konec = true;
-                }
-                else Console.WriteLine("Zadejte start pro zacatek");
-            } while (konec != true);
-
-        }
+        //metoda starajici se o start hry
 
         //pomocna metoda pro zadani jmen hracu
-        private void GetPlayersType(Player p1, Player p2)
+        public void GetPlayersType(Player p1, Player p2)
         {
             bool konec = false;
             string stringType;
@@ -295,7 +296,7 @@ namespace Ročníkový_projekt_v_1._3
             } while (konec != true);
         }
         
-        private void GetPlayersDifficulty(Player p1, Player p2)
+        public void GetPlayersDifficulty(Player p1, Player p2)
         {
             int i = 0;
             bool konec = false;
@@ -328,7 +329,7 @@ namespace Ročníkový_projekt_v_1._3
             }
         }
 
-        private void GetPlayersName(Player p1, Player p2)
+        public void GetPlayersName(Player p1, Player p2)
         {
             int i = 0;
             string name;
@@ -354,7 +355,7 @@ namespace Ročníkový_projekt_v_1._3
             }
         }
 
-        private Player GetWhoFirst()
+        public Player GetWhoFirst()
         {
             bool g = false;
             string whofirst;
@@ -362,8 +363,8 @@ namespace Ročníkový_projekt_v_1._3
 
             Console.Clear();
             Console.WriteLine("Zvolte hrace ktery zacne:");
-            Console.WriteLine("1.{0}", P1.GetName());
-            Console.WriteLine("2.{0}", P2.GetName());
+            Console.WriteLine("1.{0}", Manager.P1.GetName());
+            Console.WriteLine("2.{0}", Manager.P2.GetName());
             Console.Write(">> ");
 
             do
@@ -371,20 +372,20 @@ namespace Ročníkový_projekt_v_1._3
                 whofirst = Console.ReadLine().ToUpper();
                 if ((regex.IsMatch(whofirst)) && (whofirst.Length == 1))
                 {
-                    if (Int32.Parse(whofirst) == 1) return P1;
+                    if (Int32.Parse(whofirst) == 1) return Manager.P1;
                     g = true;
                 }
                 else Console.WriteLine("Zadali jste spatny prikaz");
             } while (g != true);
-            return P2;
+            return Manager.P2;
         }
 
         //graficke zobrazeni desky
-        private void ShowChessboard(Chessboard Board)
+        public void ShowChessboard(Chessboard Board)
         {
             Console.Clear();
             int[,] b = (Board.GetBoard());
-            Console.WriteLine("                   {0} ", Rules.GetBlackPlayer().GetName());
+            Console.WriteLine("                   {0} ", Manager.Rules.GetBlackPlayer().GetName());
             Console.WriteLine("\n\n  A   B   C   D   E   F   G   H   I   J");
             Console.WriteLine("\n|---|---|---|---|---|---|---|---|---|---|");
             for (int i = _TopBorder; i <= _BottomBorder; i++)
@@ -400,20 +401,20 @@ namespace Ročníkový_projekt_v_1._3
                 Console.WriteLine("| {0}\n|---|---|---|---|---|---|---|---|---|---|", 9 - i);
             }
             Console.WriteLine("");
-            Console.WriteLine("                   {0} ", Rules.GetWhitePlayer().GetName());
+            Console.WriteLine("                   {0} ", Manager.Rules.GetWhitePlayer().GetName());
         }
 
         //metoda ktera slouzi k odeleni desky a zadavani prikazu
-        private void ShowInfo()
+        public void ShowInfo()
         {
-            Console.WriteLine("na tahu je Hrac {0}", Rules.WhoOnMove().GetName());
+            Console.WriteLine("na tahu je Hrac {0}", Manager.Rules.WhoOnMove().GetName());
             Console.Write(">> ");
         }
 
         private void WarningMessage()
         {
             {
-                ShowChessboard(Board);
+                ShowChessboard(Manager.Board);
                 Console.WriteLine("");
                 Console.WriteLine("Zadali jste spatny prikaz");
                 Console.WriteLine("");

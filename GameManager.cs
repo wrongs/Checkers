@@ -3,22 +3,55 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
+using System.Xml;
 
 namespace Ročníkový_projekt_v_1._3
 {
     public class GameManager
     {
-        private Chessboard Board;
-        private Rules Rules;
-        private Brain Brain;
+        private UI UI;
+        public Player P1 { get; private set; }
+        public Player P2 { get; private set; }
+        public Chessboard Board { get; private set; }
+        public Rules Rules { get; private set; }
+        public Brain Brain { get; private set; }
+
 
         //Trida ktera slouzi jako rozhrani mezi logikou a UI
+        /*
         public GameManager(Chessboard board, Rules rules, Brain brain)
         {
             this.Board = board;
             this.Rules = rules;
             this.Brain = brain;
+        }
+        */ 
+
+        public GameManager()
+        {
+            this.UI = new UI(this);
+            NewGame();
+            UI.Play();
+        }
+
+        public void NewGame()
+        {
+            P1 = new Player();
+            P2 = new Player();
+            UI.GetPlayersType(P1, P2);
+            UI.GetPlayersName(P1, P2);
+            UI.GetPlayersDifficulty(P1, P2);
+
+            Player onMove = UI.GetWhoFirst();
+            Player notOnMove = P1;
+
+            if (onMove.GetName().Equals(P1.GetName())) notOnMove = P2;
+                    
+            Board = new Chessboard();
+            Rules = new Rules(onMove, Board, notOnMove);
+            Brain = new Brain(Rules, Board);
+            UI.ShowChessboard(Board);
+            UI.ShowInfo();
         }
 
         //Metoda ktera provadi kontrolu spravnosti tahu 
@@ -116,20 +149,17 @@ namespace Ročníkový_projekt_v_1._3
             if (result == 2) return 4;
             return 0;
         }
-
+        /*
         public bool SaveGame()
         {
-
-            // objektu XMLSerializer řekneme, jak bude vypadat kořen
-            XmlSerializer xmlSerial = new XmlSerializer(typeof(Chessboard));
-            // řekneme, do jakého souboru bude zapisovat
-            TextWriter xml = new StreamWriter("save.xml");
-            // zapíšeme do souboru            
-            xmlSerial.Serialize(xml, Board);
-            // zavřeme
-            xml.Close();
-            return true;
+            XmlDocument doc = new XmlDocument();
+            XmlDeclaration deklarace = doc.CreateXmlDeclaration("1.0", "utf-8", null);
+            doc.AppendChild(deklarace);
+            XmlElement koren = doc.CreateElement("GameSave");
+            XmlElement player = doc.CreateElement("player");
+            player.SetAttribute("name", );
         }
+        */
 
         //pomocna metoda pro prevod souradnic
         public void PrevodNaPole(ref int x, ref int y)

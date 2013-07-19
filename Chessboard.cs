@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Xml.Serialization;
 
 namespace Ročníkový_projekt_v_1._3
 {
@@ -16,6 +17,7 @@ namespace Ročníkový_projekt_v_1._3
         private const int _LefBorder = 0;
         private const int _RightBorder = 9;
 
+        [XmlArray("position")]
         private int[,] Board = new int[10, 10];
 
         private Stack<Move> UndoStack;

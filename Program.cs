@@ -9,7 +9,8 @@ namespace Ročníkový_projekt_v_1._3
     {
         static void Main(string[] args)
         {
-            UI game = new UI();
+            GameManager GameManager = new GameManager();
+            //UI game = new UI();
         }
     }
 }
